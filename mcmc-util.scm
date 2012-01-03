@@ -78,5 +78,5 @@
                (rlet1 z (run-process '(gnuplot -) :input :pipe :wait #f)
                  (set! p z))))]
       [('close) (when p
-                  (close-output-port (process-input-port p))
+                  (close-output-port (process-input p))
                   (process-wait p))])))

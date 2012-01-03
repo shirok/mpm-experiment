@@ -192,6 +192,10 @@
         (format p "set xrange [~a:*]\n" xmin)
         (format p "set yrange [0:~a]\n" ymax)
         (format p "set y2range [0:6]\n")
+        (format p "set ylabel 'Error'\n")
+        (format p "set ytics nomirror\n")
+        (format p "set y2tics\n")
+        (format p "set y2label 'Degree'\n")
         (format p "plot 'mcmc4.err' using 1:2 axes x1y1 with lines, '' using 1:3 axes x1y2 with steps\n")))
     (^[cmd . args]
       (ecase cmd

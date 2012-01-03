@@ -218,7 +218,7 @@
   (define (add-Z x y)
     (if (or (< x canvas-x0) (< canvas-x1 x)
             (< y canvas-y0) (< canvas-y1 y))
-      (inc! penalty 2.0)
+      (inc! penalty 5.0)
       (let ([ix (roundI x canvas-x0 canvas-x1)]
             [iy (roundI y canvas-y0 canvas-y1)])
         (do-ec (: y kernel-size)
@@ -243,10 +243,6 @@
   (f32vector-mul! buf buf)
   (exp (- (+ penalty (f32vector-dot buf I0)))))
 
-(define (show-likelihood-image tree I)
-  (let1 p (likelihood tree I)
-    (gl-draw-pixels I_size I_size GL_LUMINANCE GL_FLOAT (Tree-Lbuf tree))))
- 
 ;;;
 ;;; RJMCMC
 ;;;
@@ -372,6 +368,8 @@
 
 (define *show-max* #f)
 
+(define *show-likelihood* 'likelihood) ; or target, #f
+
 (define *running* #t)
 
 (define (draw-tree tree I)
@@ -397,6 +395,14 @@
                (do-flower)
                (gl-pop-matrix))))
 
+(define (show-likelihood-image tree I)
+  (case *show-likelihood*
+    [(likelihood)
+     (let1 p (likelihood tree I)
+       (gl-draw-pixels I_size I_size GL_LUMINANCE GL_FLOAT (Tree-Lbuf tree)))]
+    [(target)
+     (gl-draw-pixels I_size I_size GL_LUMINANCE GL_FLOAT I)]))
+ 
 (define *flower-id* #f)
 (define *flower-quad* #f)
 
@@ -448,6 +454,17 @@
                               #\r (^[x y]
                                     (set! *tree* (initial-tree))
                                     (print "Starting over"))
+                              #\i (^[x y]
+                                    (case *show-likelihood*
+                                      [(likelihood)
+                                       (set! *show-likelihood* #f)
+                                       (print "Hide likelihood image")]
+                                      [(#f)
+                                       (set! *show-likelihood* 'target)
+                                       (print "Show target image")]
+                                      [(target)
+                                       (set! *show-likelihood* 'likelihood)
+                                       (print "Show likelihood image")]))
                               #\space (^[x y]
                                         (set! *running* (not *running*))
                                         (if *running*
