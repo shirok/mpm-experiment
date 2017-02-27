@@ -374,7 +374,6 @@
 
 (define (draw-tree tree I)
   (gl-push-matrix)
-  (gl-load-identity)
   (when *running* (step tree I))
   (if *show-max*
     (do-tree (Tree-max-tree tree))
@@ -386,7 +385,7 @@
 (define (do-tree node)
   (walk-node node
              (^[x y x. y. level]
-               (gl-color (/. 140 255) (/. 92 255) (/. 16 255) 0)
+               (gl-color (/. 140 255) (/. 92 255) (/. 16 255))
                (gl-line-width (clamp (- 9 level)))
                (gl-begin* GL_LINES (gl-vertex x y) (gl-vertex x. y.)))
              (^[x y level]
@@ -411,19 +410,19 @@
     (set! *flower-id* (gl-gen-lists 1))
     (set! *flower-quad* (make <glu-quadric>))
     (gl-new-list *flower-id* GL_COMPILE)
-    (gl-color 1.0 (/. 114 255) (/. 114 255) 0)
+    (gl-color 1.0 (/. 114 255) (/. 114 255))
     (dotimes [n 5]
       (gl-translate 0 0.08 0)
       (glu-disk *flower-quad* 0.0 0.06 10 1)
       (gl-translate 0 -0.08 0)
       (gl-rotate 72 0 0 1))
-    (gl-color 1.0 (/. 230 255) (/. 20 255) 0)
+    (gl-color 1.0 (/. 230 255) (/. 20 255))
     (gl-translate 0 0 0.01)
     (glu-disk *flower-quad* 0.0 0.03 8 1)
     (gl-end-list))
   (gl-call-list *flower-id*))
 
-(define (reshape w h)
+(define (reshape w h _)
   (let1 ratio (/ h w)
     (gl-viewport 0 0 w h)
     (gl-matrix-mode GL_PROJECTION)
@@ -434,14 +433,12 @@
     (gl-load-identity)
     ))
 
-(define *tree* #f)
-
 (define (run I)
   (thread-start!
    (make-thread
     (^[]
       (simple-viewer-display
-       (^[] (when *tree* (draw-tree *tree* I))))
+       (^v (when *tree* (draw-tree *tree* I))))
       (simple-viewer-reshape reshape)
       (simple-viewer-grid #f)
       (simple-viewer-axis #f)
@@ -471,7 +468,7 @@
                                           (print "Started")
                                           (print "Stopped")))
                               )
-      (simple-viewer-window 'metropolis-procedural-modeling)
+      (simple-viewer-window-2d 'metropolis-procedural-modeling)
       (gl-clear-color 1.0 1.0 1.0 0)
       (simple-viewer-run)))))
 
